@@ -1,5 +1,5 @@
 /**
- * @version 0.1
+ * @version 0.1.1
  * @copyright Many Stallings Company 2024
  * @license MIT
  */
@@ -25,22 +25,29 @@ const customParseFormat = require('dayjs/plugin/customParseFormat')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
 const { generate } = require('randomstring')
 
-dayjs.extend(customParseFormat) // use plugin
-dayjs.extend(isSameOrAfter) // use plugin
+dayjs.extend(customParseFormat) // use Dayjs plugin
+dayjs.extend(isSameOrAfter) // use Dayjs plugin
 
-// Create a database
+// Create a Key-Value database (Level.js https://leveljs.org/)
 const db = new Level('many', { valueEncoding: 'json' })
 
-let baseURL = '127.0.0.1'
 const port = 8888
 
-const maxId = {}
 const ENV_GLOBAL = {
 	'유저': {
 		'누적': 0,
 		'로그아웃누적': 0
 	}
 }
+
+/**
+ * @typedef {object} RememberMe - Because of not Typescript based, this naming is not worth.
+ * @property {Map} map - Remember Token String Storage. Key is Token String.
+ * @property {function} find - Get token related object that has contextual information (username, state, endDate) from tokenName.
+ * @property {function} setState - Set token related object by tokenName.
+ * @property {function} add - Add token related object by new tokenName.
+ * @property {function} removeAll - Remove all data in 'map' member (Map type).
+ */
 const rememberMe = {
   map: new Map(),
   find: (tokenName) => {
@@ -66,7 +73,8 @@ const rememberMe = {
 }
 
 /**
- * @function 
+ * Temporarilly Removed.
+ * @function
  * @param {string|decimal} str - Alias for console.log. 콘솔 로그 별칭.
  */
 function log(str)
@@ -75,6 +83,7 @@ function log(str)
 }
 
 /**
+ * Temporarilly Unused.
  * @function
  * @param {int} len - RandomString length. When it's value is undefined, it sets default value 32. 랜덤 문자열 길이. 그 값이 undefined일 경우 기본값 32로 설정.
  * @returns {string} 
@@ -93,6 +102,7 @@ function uniqueGenerate(len) {
 }
 
 /**
+ * Temporarilly Unused.
  * @function
  * @param {string} cmd - Command string alias for message select. 메시지 선택을 위한 명령 문자열.
  * @returns {object} {code:int, msg:string} object return. {code:int, msg:string} 오브젝트 리턴.
@@ -125,7 +135,6 @@ function getMessage(cmd) {
 
 /**
  * Return whether the current session is authorized
- * 
  * 현재 세션이 인가되었는지 여부를 리턴 
  * @function
  * @param {import('express').Request} req - Express.js Request Object. Express.js 요청 객체.
@@ -150,6 +159,7 @@ function hasNotUser(req) {
 }
 
 /**
+ * Temporarilly Unused. Under Developement.
  * If the JavaScript expression of the ifTrue parameter value is true, issue a Remember Me token.
  * The format of the token value is 'MMS' + YYMMDD + ('20'|'1d'|'un') + randomString.
  * Draft: It is true that Semantic information remains within the Remember Me token value. So implement the logic converting to JWT tokens
@@ -182,6 +192,12 @@ function makeRememberMeTokenName(ifTrue, req, res, next) {
 	next()
 }
 
+/**
+ * LevelDB에 존재하는 유저일 때, 새로운 리멤버미 토큰 이름을 생성하고 관련 오브젝트 {username, state, endDate} 를 초기화.
+ * @function
+ * @param {string} username - username string.
+ * @returns Token Name String or '[유저정보없음]' at invalid username.
+ */
 async function addRememberMeToken(username) {
 	const result = await findSomeBySome('user', username)
 	let tokenName
@@ -207,6 +223,8 @@ async function addRememberMeToken(username) {
  * @returns 없음
  */
 async function loginWithRememberMe(req, res, next) {
+
+	// Under development
 	function authRememberMeToken(token) {
 		const dateNumber = _.toInteger(token.substring(3, 15))
 		const endDate = token.substring(15, 25) ? token.substring(15, 25) : '' 
@@ -221,23 +239,27 @@ async function loginWithRememberMe(req, res, next) {
 					}
 		return false
 	}
+
+	// Request 객체에 존재하는 리멤버미 토큰의 유효기간 만료 여부를 판단하여 유효한 토큰 상태 오브젝트를 리턴하거나 그렇지 않은 경우 null 값을 리턴.
+	// Return valid token state object when token in Request object has valid End Date (compare now datetime and 'endDate' member). If not, return null.
 	async function getUserStateFromRememberMeToken() {
     const state = rememberMe.find(req.body.remember_me)
 		if(state.endDate.isSameOrAfter(dayjs()))
 			return state
 		return null
 	}
+
 	console.log("hasNotUser(req)", hasNotUser(req))
 	console.log("req.isAuth=", req.isAuthenticated())
 	if(!hasNotUser(req)) return next(true) // Case of session already logged in, ignore the current function.	이미 로그인 한 세션의 경우 현 함수를 무시한다.
 	if(!req.body.remember_me)
 	{
-		//No Remember Me Cookie Value.	리멤버 미 쿠키값 없음.
+		//No Remember Me Cookie Value. 리멤버 미 쿠키값 없음.
 		req.body.remember_me = await addRememberMeToken(req.body.username)
 	}
 	if(!authRememberMeToken(req.body.remember_me))
 	{
-		next(false) //Junk Remember Me	정크 리멤버 미. 외부 공격 간주.
+		next(false) //Junk Remember Me. 정크 리멤버 미. 외부 공격 간주.
 	}
 	const state = await getUserStateFromRememberMeToken()
 	console.log('user state', state)
@@ -246,7 +268,7 @@ async function loginWithRememberMe(req, res, next) {
 		console.log("//재로그인 작업 수행")
 		if(_.isNil(state.username))
 		{
-			// 리멤버미 토큰에 해당하는 유저이름이 없음.
+			// There is no useranme related remember me token. 리멤버미 토큰에 해당하는 유저이름이 없음.
 			rememberMe.setState(req.body.remember_me, {state: '정크'})
 			next(false)
 		}
@@ -266,7 +288,7 @@ async function loginWithRememberMe(req, res, next) {
 	}
 	else
 	{
-		// 리멤버미 토큰의 스테이트 객체가 없음
+		// There is no state object of remember me token. 리멤버미 토큰의 스테이트 객체가 없음
 		next(false)
 	}
 }
@@ -274,7 +296,7 @@ async function loginWithRememberMe(req, res, next) {
 
 
 const sessionMemoryStore = new session.MemoryStore()
-const secretList = ['ad6e89cc744a5fa5a23e3d9a4f07e999', '60393f2bcf92a4f87f1ddf6289b331cb', '12982ef42691544736f28d204aa0644d', 'd61752f13a4dc72c45e5c6f45fc0788d', 'dd1568dcb3ee3217ab0ca6664eff09bc', '6be01056887af61b8c8f00ae5a72f01a']
+const secretList = ['ad6e89cc744a5fa5a23e3d9a4f07e999']
 //app.set('trust proxy', 'loopback')
 app.use(compression()) // Removed when using nginx because it can be controlled by reverse proxy. 역방향 프록시에서 제어가능하므로 nginx 사용시 제거.
 app.use(express.static(path.join(__dirname, '..', 'res')))
