@@ -1,6 +1,6 @@
 /**
  * @version 0.1.1
- * @copyright Many Stallings Company 2024
+ * @copyright Many Stallings Company 2024.06
  * @license MIT
  */
 
