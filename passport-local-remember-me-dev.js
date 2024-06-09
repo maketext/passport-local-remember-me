@@ -34,10 +34,10 @@ const db = new Level('many', { valueEncoding: 'json' })
 const port = 8888
 
 const ENV_GLOBAL = {
-	'유저': {
-		'누적': 0,
-		'로그아웃누적': 0
-	}
+  '유저': {
+    '누적': 0,
+    '로그아웃누적': 0
+  }
 }
 
 /**
@@ -79,7 +79,7 @@ const rememberMe = {
  */
 function log(str)
 {
-	//console.log(str)
+  //console.log(str)
 }
 
 /**
@@ -89,16 +89,16 @@ function log(str)
  * @returns {string} 
  */
 function uniqueGenerate(len) {
-	try {
-		if(len === undefined) len = 32
-		while(true)
-		{
-			const token = randomString.generate({length: len, charset: 'alphabetic'})
-			if(tokenMap[token] === undefined) return token
-		}
-	} catch(e){
-	}
-	return undefined
+  try {
+    if(len === undefined) len = 32
+    while(true)
+    {
+      const token = randomString.generate({length: len, charset: 'alphabetic'})
+      if(tokenMap[token] === undefined) return token
+    }
+  } catch(e){
+  }
+  return undefined
 }
 
 /**
@@ -108,29 +108,29 @@ function uniqueGenerate(len) {
  * @returns {object} {code:int, msg:string} object return. {code:int, msg:string} 오브젝트 리턴.
  */
 function getMessage(cmd) {
-	switch(cmd)
-	{
-		case '일반오류':
-			return {code:1001, msg: '일반 오류가 발생하였습니다.'}
-		case '없음':
-			return {code:1002, msg: '데이터가 없습니다.'}
-		case '읽기오류':
-			return {code:1003, msg: '데이터베이스 읽기 오류가 발생하였습니다.'}
-		case '쓰기오류':
-			return {code:1004, msg: '데이터베이스 쓰기 오류가 발생하였습니다.'}
+  switch(cmd)
+  {
+    case '일반오류':
+      return {code:1001, msg: '일반 오류가 발생하였습니다.'}
+    case '없음':
+      return {code:1002, msg: '데이터가 없습니다.'}
+    case '읽기오류':
+      return {code:1003, msg: '데이터베이스 읽기 오류가 발생하였습니다.'}
+    case '쓰기오류':
+      return {code:1004, msg: '데이터베이스 쓰기 오류가 발생하였습니다.'}
 
-		case '로그인성공':
-			return {code:2001, msg: '로그인에 성공하였습니다.'}
-		case '로그인실패':
-			return {code:2002, msg: '로그인에 실패하였습니다.'}
-		case '권한없음':
-			return {code:2003, msg: '접근 권한이 없습니다.'}
-		case '권한있음':
-			return {code:2004, msg: '접근 권한이 있습니다.'}
-		
-	}
-	//기타
-	return {code:9999, msg: '기타 에러가 발생하였습니다.'}
+    case '로그인성공':
+      return {code:2001, msg: '로그인에 성공하였습니다.'}
+    case '로그인실패':
+      return {code:2002, msg: '로그인에 실패하였습니다.'}
+    case '권한없음':
+      return {code:2003, msg: '접근 권한이 없습니다.'}
+    case '권한있음':
+      return {code:2004, msg: '접근 권한이 있습니다.'}
+    
+  }
+  //기타
+  return {code:9999, msg: '기타 에러가 발생하였습니다.'}
 }
 
 /**
@@ -142,20 +142,20 @@ function getMessage(cmd) {
  */
 function hasNotUser(req) {
 
-	const returnValue = []
-	if(!_.has(req, "isUnauthenticated"))
-		returnValue.push(true)
-	if(typeof req.isUnauthenticated !== 'function')
-		returnValue.push(true)
-	else if(req.isUnauthenticated())
-		returnValue.push(true)
-	if(returnValue.join().includes('true'))
-	{
-		// 로그아웃 상태
-		return true
-	}
-	// 로그인 상태
-	return false
+  const returnValue = []
+  if(!_.has(req, "isUnauthenticated"))
+    returnValue.push(true)
+  if(typeof req.isUnauthenticated !== 'function')
+    returnValue.push(true)
+  else if(req.isUnauthenticated())
+    returnValue.push(true)
+  if(returnValue.join().includes('true'))
+  {
+    // 로그아웃 상태
+    return true
+  }
+  // 로그인 상태
+  return false
 }
 
 /**
@@ -174,22 +174,22 @@ function hasNotUser(req) {
  * @returns None. 없음.
  */
 function makeRememberMeTokenName(ifTrue, req, res, next) {
-	if(ifTrue)
-	{
-		console.log("// 리멤버미 토큰 발행")
-		let endDate
-		if(req.body.remember_me === 'un') endDate = 'un'
-		else endDate = '--'
+  if(ifTrue)
+  {
+    console.log("// 리멤버미 토큰 발행")
+    let endDate
+    if(req.body.remember_me === 'un') endDate = 'un'
+    else endDate = '--'
 
-		const token = `MMS${dayjs().format('YYMMDDHHmmss')}${endDate}${randomString.generate()}`
-		saveRememberMeToken(token, req.user.username)
-			.then(() => {
-				res.cookie('remember_me', token, { path: '/', maxAge: 8640000000 })
-			})
-			.finally(() => next())
-		return
-	}
-	next()
+    const token = `MMS${dayjs().format('YYMMDDHHmmss')}${endDate}${randomString.generate()}`
+    saveRememberMeToken(token, req.user.username)
+      .then(() => {
+        res.cookie('remember_me', token, { path: '/', maxAge: 8640000000 })
+      })
+      .finally(() => next())
+    return
+  }
+  next()
 }
 
 /**
@@ -199,15 +199,15 @@ function makeRememberMeTokenName(ifTrue, req, res, next) {
  * @returns Token Name String or '[유저정보없음]' at invalid username.
  */
 async function addRememberMeToken(username) {
-	const result = await findSomeBySome('user', username)
-	let tokenName
-	if(!result) tokenName = '[유저정보없음]'
-	else tokenName = makeRememberMeTokenName()
-	if(!rememberMe.has(tokenName)) {
-		rememberMe.add(tokenName)
-		rememberMe.setState(tokenName, {username: username, state: '활성', endDate: dayjs().add(7, 'd')})
-	}
-	return tokenName
+  const result = await findSomeBySome('user', username)
+  let tokenName
+  if(!result) tokenName = '[유저정보없음]'
+  else tokenName = makeRememberMeTokenName()
+  if(!rememberMe.has(tokenName)) {
+    rememberMe.add(tokenName)
+    rememberMe.setState(tokenName, {username: username, state: '활성', endDate: dayjs().add(7, 'd')})
+  }
+  return tokenName
 }
 
 /**
@@ -224,73 +224,73 @@ async function addRememberMeToken(username) {
  */
 async function loginWithRememberMe(req, res, next) {
 
-	// Under development
-	function authRememberMeToken(token) {
-		const dateNumber = _.toInteger(token.substring(3, 15))
-		const endDate = token.substring(15, 25) ? token.substring(15, 25) : '' 
-		////console.log(dayjs(dateNumber.toString(), 'YYMMDD').startOf('d'))
-		////console.log(dayjs(new Date(2023, 0, 30)).startOf('d'))
-		if(token.startsWith('MMS'))
-			if(!isNaN(dateNumber))
-				if(dateNumber > 200000000000 && dateNumber <= 999999999999)
-					if(dayjs(dateNumber.toString(), 'YYMMDD').startOf('d').isSameOrAfter(dayjs(new Date(2023, 0, 30)).startOf('d')))
-					{
-						if(endDate.startsWith('un')) return dayjs(dateNumber.toString(), 'YYMMDDHHmmss').add(100, 'd').isSameOrAfter(dayjs())
-					}
-		return false
-	}
+  // Under development
+  function authRememberMeToken(token) {
+    const dateNumber = _.toInteger(token.substring(3, 15))
+    const endDate = token.substring(15, 25) ? token.substring(15, 25) : '' 
+    ////console.log(dayjs(dateNumber.toString(), 'YYMMDD').startOf('d'))
+    ////console.log(dayjs(new Date(2023, 0, 30)).startOf('d'))
+    if(token.startsWith('MMS'))
+      if(!isNaN(dateNumber))
+        if(dateNumber > 200000000000 && dateNumber <= 999999999999)
+          if(dayjs(dateNumber.toString(), 'YYMMDD').startOf('d').isSameOrAfter(dayjs(new Date(2023, 0, 30)).startOf('d')))
+          {
+            if(endDate.startsWith('un')) return dayjs(dateNumber.toString(), 'YYMMDDHHmmss').add(100, 'd').isSameOrAfter(dayjs())
+          }
+    return false
+  }
 
-	// Request 객체에 존재하는 리멤버미 토큰의 유효기간 만료 여부를 판단하여 유효한 토큰 상태 오브젝트를 리턴하거나 그렇지 않은 경우 null 값을 리턴.
-	// Return valid token state object when token in Request object has valid End Date (compare now datetime and 'endDate' member). If not, return null.
-	async function getUserStateFromRememberMeToken() {
+  // Request 객체에 존재하는 리멤버미 토큰의 유효기간 만료 여부를 판단하여 유효한 토큰 상태 오브젝트를 리턴하거나 그렇지 않은 경우 null 값을 리턴.
+  // Return valid token state object when token in Request object has valid End Date (compare now datetime and 'endDate' member). If not, return null.
+  async function getUserStateFromRememberMeToken() {
     const state = rememberMe.find(req.body.remember_me)
-		if(state.endDate.isSameOrAfter(dayjs()))
-			return state
-		return null
-	}
+    if(state.endDate.isSameOrAfter(dayjs()))
+      return state
+    return null
+  }
 
-	console.log("hasNotUser(req)", hasNotUser(req))
-	console.log("req.isAuth=", req.isAuthenticated())
-	if(!hasNotUser(req)) return next(true) // Case of session already logged in, ignore the current function.	이미 로그인 한 세션의 경우 현 함수를 무시한다.
-	if(!req.body.remember_me)
-	{
-		//No Remember Me Cookie Value. 리멤버 미 쿠키값 없음.
-		req.body.remember_me = await addRememberMeToken(req.body.username)
-	}
-	if(!authRememberMeToken(req.body.remember_me))
-	{
-		next(false) //Junk Remember Me. 정크 리멤버 미. 외부 공격 간주.
-	}
-	const state = await getUserStateFromRememberMeToken()
-	console.log('user state', state)
-	if(!_.isNil(state))
-	{
-		console.log("//재로그인 작업 수행")
-		if(_.isNil(state.username))
-		{
-			// There is no useranme related remember me token. 리멤버미 토큰에 해당하는 유저이름이 없음.
-			rememberMe.setState(req.body.remember_me, {state: '정크'})
-			next(false)
-		}
-		else
-			req.login({username: state.username}, function(err) {
-				if (err) next(err)
-				else
-				{
-					// Renew Remember Me Token. 리멤버미 토큰 갱신.
-					rememberMe.setState(req.body.remember_me, {username: req.user.username, state: '재로그인', endDate: dayjs().add(7, 'd')})
-					issueTokenWhen(req.cookies.remember_me === 'un', req, res, next)
-					req.user.remember_me = req.cookies.remember_me
-					app.emit('event:user_login')
-					next(true)
-				}
-			})
-	}
-	else
-	{
-		// There is no state object of remember me token. 리멤버미 토큰의 스테이트 객체가 없음
-		next(false)
-	}
+  console.log("hasNotUser(req)", hasNotUser(req))
+  console.log("req.isAuth=", req.isAuthenticated())
+  if(!hasNotUser(req)) return next(true) // Case of session already logged in, ignore the current function.	이미 로그인 한 세션의 경우 현 함수를 무시한다.
+  if(!req.body.remember_me)
+  {
+    //No Remember Me Cookie Value. 리멤버 미 쿠키값 없음.
+    req.body.remember_me = await addRememberMeToken(req.body.username)
+  }
+  if(!authRememberMeToken(req.body.remember_me))
+  {
+    next(false) //Junk Remember Me. 정크 리멤버 미. 외부 공격 간주.
+  }
+  const state = await getUserStateFromRememberMeToken()
+  console.log('user state', state)
+  if(!_.isNil(state))
+  {
+    console.log("//재로그인 작업 수행")
+    if(_.isNil(state.username))
+    {
+      // There is no useranme related remember me token. 리멤버미 토큰에 해당하는 유저이름이 없음.
+      rememberMe.setState(req.body.remember_me, {state: '정크'})
+      next(false)
+    }
+    else
+      req.login({username: state.username}, function(err) {
+        if (err) next(err)
+        else
+        {
+          // Renew Remember Me Token. 리멤버미 토큰 갱신.
+          rememberMe.setState(req.body.remember_me, {username: req.user.username, state: '재로그인', endDate: dayjs().add(7, 'd')})
+          issueTokenWhen(req.cookies.remember_me === 'un', req, res, next)
+          req.user.remember_me = req.cookies.remember_me
+          app.emit('event:user_login')
+          next(true)
+        }
+      })
+  }
+  else
+  {
+    // There is no state object of remember me token. 리멤버미 토큰의 스테이트 객체가 없음
+    next(false)
+  }
 }
 
 
@@ -304,7 +304,7 @@ app.use(cookieParser()); // Required when using passport-remember-me and corresp
 app.use(bodyParser.urlencoded({ extended: true })) // Important when sending form! form 양식 전송시 중요!
 app.use(bodyParser.json())
 app.use(session({
-	store: sessionMemoryStore,
+  store: sessionMemoryStore,
   secret: secretList,
   resave: false,
   saveUninitialized: false,
@@ -313,17 +313,17 @@ app.use(session({
 app.set('view engine', 'pug')
 app.set('views', path.join(__dirname,'..', 'pug'))
 app.use((req, res, next) => {
-	//res.locals.flash = []
+  //res.locals.flash = []
 
-	log(`새 라우팅 ${req.path}`)
+  log(`새 라우팅 ${req.path}`)
 
-	res.on("finish", function() {
-		log("응답메시지 전송됨.")
-	})
+  res.on("finish", function() {
+    log("응답메시지 전송됨.")
+  })
 
-	// Where to typing Serialization/Deserialization, components for caching verification. 직렬화/역직렬화, 캐싱확인용 컴포넌트 들어갈 자리.
-	// res.append('Cache-Control', 'max-age=5') No effect. 효과 없음.
-	next()
+  // Where to typing Serialization/Deserialization, components for caching verification. 직렬화/역직렬화, 캐싱확인용 컴포넌트 들어갈 자리.
+  // res.append('Cache-Control', 'max-age=5') No effect. 효과 없음.
+  next()
 })
 app.use(passport.initialize())
 app.use(passport.session())
@@ -331,125 +331,125 @@ app.use(passport.session())
 // For session store memory leak prevention periodically, iterate the session store object's keys. (Bug Fix).
 // 세션 스토어 메모리 누수 방지를 위해 주기적으로 세션 스토어 객체의 키를 순회함. (버그 픽스)
 setInterval(() => {
-	sessionMemoryStore.all(function(err, sessionObject) {
-		if(Object.keys(sessionObject).length > 0)
-		{
-			for (let sessionId in sessionObject) {
-				sessionMemoryStore.get(sessionId, function() {} )
-			}
-		}
-	})
+  sessionMemoryStore.all(function(err, sessionObject) {
+    if(Object.keys(sessionObject).length > 0)
+    {
+      for (let sessionId in sessionObject) {
+        sessionMemoryStore.get(sessionId, function() {} )
+      }
+    }
+  })
 }, 1000 * 60 * 15)
 
 // Login Validation Strategy. 로그인 검증 전략.
 passport.use(new LocalStrategy({
-	usernameField: 'username',
-	passwordField: 'password'
+  usernameField: 'username',
+  passwordField: 'password'
 }, (username, password, cb) => {
-	findSomeBySome('user', username)
-		.then(user => {
-			if(user)
-				if(user.password === password)
-					return cb(null, user)
-			cb(null, false, { message: '유저네임이 일치하지 않습니다.' })
-		})
-		.catch(err => {
-			console.log("로컬전략 읽기 오류")
-			cb(err)
-		})
+  findSomeBySome('user', username)
+    .then(user => {
+      if(user)
+        if(user.password === password)
+          return cb(null, user)
+      cb(null, false, { message: '유저네임이 일치하지 않습니다.' })
+    })
+    .catch(err => {
+      console.log("로컬전략 읽기 오류")
+      cb(err)
+    })
 
 
-	/*
-	crypto.pbkdf2(password, row.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
-		if (err) { return cb(err); }
-		if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
-			return cb(null, false, { message: 'Incorrect username or password.' });
-		}
-		;
-	})*/
+  /*
+  crypto.pbkdf2(password, row.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
+    if (err) { return cb(err); }
+    if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
+      return cb(null, false, { message: 'Incorrect username or password.' });
+    }
+    ;
+  })*/
 
 }));
 
 async function findSome(some) {
-	try {
-		return await db.get(some)
-	} catch(e) {
-		return undefined
-	}
+  try {
+    return await db.get(some)
+  } catch(e) {
+    return undefined
+  }
 }
 async function findSomeBySome(some1, some2) {
-	if(_.isNil(some2)) return undefined
-	const some = await db.get(some1)
-	return some[some2]
+  if(_.isNil(some2)) return undefined
+  const some = await db.get(some1)
+  return some[some2]
 }
 async function saveSome(key, value) {
-	console.log('세이브')
-	//console.log(key, value)
-	return await db.put(key, value)
+  console.log('세이브')
+  //console.log(key, value)
+  return await db.put(key, value)
 }
 async function saveSomeBySome(key, some, value) {
-	console.log('세이브')
-	//console.log(key, value)
+  console.log('세이브')
+  //console.log(key, value)
   const storage = findSome(key)
   storage[some] = value
-	return await db.put(key, storage)
+  return await db.put(key, storage)
 }
 async function createIfNot(key, value) {
-	try {
-		await db.get(key)
-		return true
-	} catch(e) {
-		return await db.put(key, value)
-	}
+  try {
+    await db.get(key)
+    return true
+  } catch(e) {
+    return await db.put(key, value)
+  }
 }
 
 passport.serializeUser(function(user, cb) {
   //saveSomeBySome('user', user.username, user)
-	return cb(null, user.username)
+  return cb(null, user.username)
 })
 
 passport.deserializeUser(function(username, cb) {
-	findSomeBySome('user', username)
-		.then(user => cb(null, user))
-		.catch(err => cb(err))
+  findSomeBySome('user', username)
+    .then(user => cb(null, user))
+    .catch(err => cb(err))
 })
 
 app.post('/many-table/login',
-	passport.authenticate('local', {
-	failureFlash: getMessage('로그인실패').msg,
-	failureRedirect: '/many-table/login'
+  passport.authenticate('local', {
+  failureFlash: getMessage('로그인실패').msg,
+  failureRedirect: '/many-table/login'
 }), (req, res, next) => {
-	req.user.remember_me = req.body.remember_me
-	//console.log(req.body)
-	issueTokenWhen(req.body.remember_me === 'un', req, res, next)
+  req.user.remember_me = req.body.remember_me
+  //console.log(req.body)
+  issueTokenWhen(req.body.remember_me === 'un', req, res, next)
 }, (req, res) => {
-	app.emit('event:user_login')
-	res.redirect('/many-table/front')
+  app.emit('event:user_login')
+  res.redirect('/many-table/front')
 })
 app.all('/many-table/logout', async (req, res, next) => {
-	await consumeRememberMeToken(req.cookies.remember_me)
-	res.clearCookie('remember_me')
-	req.logout(err => {
+  await consumeRememberMeToken(req.cookies.remember_me)
+  res.clearCookie('remember_me')
+  req.logout(err => {
     if (err) 
-			next(err)
-		else
-		{
-			console.log("세션 로그아웃수 증가", ++ENV_GLOBAL['유저']['로그아웃누적'])
-			res.send({code: 0})
-			next()
-		}
-	})
+      next(err)
+    else
+    {
+      console.log("세션 로그아웃수 증가", ++ENV_GLOBAL['유저']['로그아웃누적'])
+      res.send({code: 0})
+      next()
+    }
+  })
 })
 
 app.on('event:user_login', () => {
-	console.log("세션 로그인수 증가", ++ENV_GLOBAL['유저']['누적'])
+  console.log("세션 로그인수 증가", ++ENV_GLOBAL['유저']['누적'])
 })
 
 app.listen(port, async () => {
-	console.log("HTTP 네트워크 소켓 리스닝 중...")
+  console.log("HTTP 네트워크 소켓 리스닝 중...")
 })
 
 app.all('/api/v2*', loginWithRememberMe, async (req, res, next) => {
-	if(hasNotUser(req))
-		res.status(404).send('응답이 없습니다.')
+  if(hasNotUser(req))
+    res.status(404).send('응답이 없습니다.')
 })
